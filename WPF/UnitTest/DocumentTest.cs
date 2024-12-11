@@ -310,6 +310,31 @@ namespace UnitTest
         }
 
         [TestMethod]
+        public void FetchLineAndTryGetRaw()
+        {
+            DummyRender render = new DummyRender();
+            Document.PreloadLength = 64;
+            Document doc = new Document();
+            doc.LayoutLines.Render = render;
+
+            for (int i = 0; i < 20; i++)
+                doc.Append("01234567890123456789\n");
+
+            //普通に追加すると余計なものがあるので、再構築する
+            doc.PerformLayout(false);
+
+            LineToIndexTableData lineData;
+            bool result = doc.LayoutLines.TryGetRaw(20, out lineData);
+            Assert.AreEqual(false, result);
+            Assert.AreEqual(null, lineData);
+
+            doc.Append("a\nb\nc");
+            doc.LayoutLines.FetchLine(23);
+            Assert.AreEqual("a\n", doc.LayoutLines[20]);
+            Assert.AreEqual("c", doc.LayoutLines[22]);
+        }
+
+        [TestMethod]
         public void IndexOfText()
         {
             StringBuffer buf = new StringBuffer();

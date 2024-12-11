@@ -402,6 +402,9 @@ namespace FooEditEngine
 
         internal void UpdateLineAsReplace(int row,int removedLength, int insertedLength)
         {
+            if (row >=  this._Lines.Count)
+                return;
+
             int deltaLength = insertedLength - removedLength;
 
             this._Lines[row] = new LineToIndexTableData(this.GetLineHeadIndex(row), this.GetLengthFromLineNumber(row) + deltaLength, true, true, null);
@@ -420,6 +423,10 @@ namespace FooEditEngine
 #endif
             int startRow, endRow;
             GetRemoveRange(index, removedLength, out startRow, out endRow);
+
+            //行が存在しない場合、後で構築されるので何もしてはならない
+            if (startRow == -1 || endRow == -1)
+                return;
 
             int deltaLength = insertedLength - removedLength;
 
@@ -492,11 +499,17 @@ namespace FooEditEngine
 
         void GetRemoveRange(int index,int length,out int startRow,out int endRow)
         {
-            startRow = this.GetLineNumberFromIndex(index);
+            if(this.TryGetLineNumberFromIndex(index, out startRow) == false)
+            {
+                startRow = -1;
+                endRow = -1;
+                return;
+            }
             while (startRow > 0 && this._Lines[startRow - 1].LineEnd == false)
                 startRow--;
 
-            endRow = this.GetLineNumberFromIndex(index + length);
+            if (this.TryGetLineNumberFromIndex(index + length, out endRow) == false)
+                endRow = this._Lines.Count - 1;
             while (endRow < this._Lines.Count && this._Lines[endRow].LineEnd == false)
                 endRow++;
             if (endRow >= this._Lines.Count)
@@ -513,6 +526,19 @@ namespace FooEditEngine
             int secondPartLength = LastIndex - (updateStartIndex + removedLength - 1);
             int analyzeLength = fisrtPartLength + secondPartLength + insertedLength;
             Debug.Assert(analyzeLength <= this.Document.Length - 1 - HeadIndex + 1);
+
+            //分析する範囲とドキュメントの長さが一致しているかどうか
+            int IndexAnayzed = HeadIndex + analyzeLength - 1;
+            if (IndexAnayzed < this.Document.Length -1)
+            {
+                int i;
+                for (i = IndexAnayzed; i < this.Document.Length; i++)
+                {
+                    if (this.Document.StringBuffer[i] == Document.NewLine)
+                        break;
+                }
+                analyzeLength = i - HeadIndex + 1;
+            }
 
             return new Tuple<int, int>(HeadIndex, analyzeLength);
         }
@@ -549,7 +575,50 @@ namespace FooEditEngine
         /// <remarks>いくつかの値は実態とかけ離れた値を返します。詳しくはLineToIndexTableDataの注意事項を参照すること</remarks>
         internal LineToIndexTableData GetRaw(int row)
         {
-            return this._Lines[row];
+            LineToIndexTableData lineData;
+            if(this.TryGetRaw(row,out lineData))
+            {
+                return lineData;
+            }
+            throw new ArgumentOutOfRangeException();
+        }
+
+        /// <summary>
+        /// 生データを取得します
+        /// </summary>
+        /// <param name="row">行</param>
+        /// <param name="lineData">取得できた行データー。存在しないときはnullが入る。</param>
+        /// <returns>取得できた場合は真を返し、そうでない場合は偽を返す。</returns>
+        /// <remarks>いくつかの値は実態とかけ離れた値を返します。詳しくはLineToIndexTableDataの注意事項を参照すること。</remarks>
+        internal bool TryGetRaw(int row,out LineToIndexTableData lineData)
+        {
+            if(row > this._Lines.Count)
+            {
+                lineData = null;
+                return false;
+            }
+            lineData = this._Lines[row];
+            return true;
+        }
+
+        /// <summary>
+        /// 指定された行までレイアウト行を構築します
+        /// </summary>
+        /// <param name="row">行</param>
+        internal void FetchLine(int row)
+        {
+            while (row >= this._Lines.Count - 1)
+            {
+                //直接最終行を取得すると後々おかしくなる
+                int lastRow = this.Count - 1;
+                int LineHeadIndex = this.GetIndexFromLineNumber(lastRow);
+                int Length = this.GetLengthFromLineNumber(lastRow);
+                if (LineHeadIndex + Length >= this.Document.Length)
+                {
+                    return;
+                }
+                this.Document.BuildLayout(LineHeadIndex + Length, Document.PreloadLength);
+            }
         }
 
         /// <summary>
@@ -573,7 +642,7 @@ namespace FooEditEngine
         {
             if (row < 0 || row > this._Lines.Count)
                 throw new ArgumentOutOfRangeException();
-            return this.GetRaw(row).Length;
+            return this.collection[row].Length;
         }
 
         /// <summary>
@@ -661,6 +730,23 @@ namespace FooEditEngine
                 throw new ArgumentOutOfRangeException("該当する行が見つかりませんでした");
 
             return result;
+        }
+
+        /// <summary>
+        /// 行番号を返す
+        /// </summary>
+        /// <param name="index">インデックス</param>
+        /// <param name="resultRow">対応する行番号。存在しなければ-1。</param>
+        /// <returns>存在しなければ偽。存在すれば真を返す。</returns>
+        public bool TryGetLineNumberFromIndex(int index,out int resultRow)
+        {
+            resultRow = -1;
+            var result = this.IndexOfLoose(index);
+            if (result == -1)
+                return false;
+
+            resultRow = result;
+            return true;
         }
 
         /// <summary>

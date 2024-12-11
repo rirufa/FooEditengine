@@ -612,32 +612,6 @@ namespace FooEditEngine
         }
 
         /// <summary>
-        /// キャレットを指定した位置に移動させる
-        /// </summary>
-        /// <param name="row"></param>
-        /// <param name="col"></param>
-        /// <param name="autoExpand">折り畳みを展開するなら真</param>
-        public void JumpCaret(int row, int col, bool autoExpand = true)
-        {
-            if (autoExpand)
-            {
-                int lineHeadIndex = this.LayoutLines.GetIndexFromLineNumber(row);
-                int lineLength = this.LayoutLines.GetLengthFromLineNumber(row);
-                FoldingItem foldingData = this.LayoutLines.FoldingCollection.Get(lineHeadIndex, lineLength);
-                if(foldingData != null)
-                {
-                    if (this.LayoutLines.FoldingCollection.IsParentHidden(foldingData) || !foldingData.IsFirstLine(this.LayoutLines, row))
-                    {
-                        this.LayoutLines.FoldingCollection.Expand(foldingData);
-                    }
-                }
-            }
-
-            //イベント呼び出しの再入防止のため
-            this.Document.SetCaretPostionWithoutEvent(new TextPoint(row, col));
-        }
-
-        /// <summary>
         /// index上の文字が表示されるようにSrcを調整する
         /// </summary>
         /// <param name="index">インデックス</param>
@@ -819,8 +793,6 @@ namespace FooEditEngine
             int endRow = this.LayoutLines.Count - 1 - this.LineCountOnScreen;
             if (endRow < 0)
                 endRow = 0;
-            if (row > endRow)
-                row = endRow;
             base.TryScroll(x, row);
         }
 
@@ -934,7 +906,9 @@ namespace FooEditEngine
                 int lineHeadIndex = this.LayoutLines.GetIndexFromLineNumber(row);
                 int lineLength = this.LayoutLines.GetLengthFromLineNumber(row);
 
-                if (this.LayoutLines.FoldingCollection.IsHidden(lineHeadIndex) && row < this.LayoutLines.Count - 1)
+                LineToIndexTableData lineData = null;
+                this.LayoutLines.FetchLine(row);
+                if (this.LayoutLines.FoldingCollection.IsHidden(lineHeadIndex) && this.LayoutLines.TryGetRaw(row,out lineData))
                     continue;
 
                 ITextLayout layout = this.LayoutLines.GetLayout(row);

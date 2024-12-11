@@ -86,6 +86,10 @@ namespace FooEditEngine
         /// レイアウトが再構築されたことを表す
         /// </summary>
         RebuildLayout,
+        /// <summary>
+        /// レイアウトの構築が必要なことを示す
+        /// </summary>
+        BuildLayout,
     }
 
     /// <summary>
@@ -148,6 +152,7 @@ namespace FooEditEngine
     /// <remarks>この型のすべてのメソッド・プロパティはスレッドセーフです</remarks>
     public sealed class Document : IEnumerable<char>, IRandomEnumrator<char>, IDisposable
     {
+
         Regex regex;
         Match match;
         StringBuffer buffer;
@@ -162,6 +167,11 @@ namespace FooEditEngine
         /// 一行当たりの最大文字数
         /// </summary>
         public const int MaximumLineLength = 1000;
+        /// <summary>
+        /// 事前読み込みを行う長さ
+        /// </summary>
+        /// <remarks>値を反映させるためにはレイアウト行すべてを削除する必要があります</remarks>
+        public static int PreloadLength = 1024 * 1024 * 5;
 
         /// <summary>
         /// コンストラクター
@@ -482,10 +492,29 @@ namespace FooEditEngine
                 this.CaretChanged(this, null);
         }
 
-        internal void SetCaretPostionWithoutEvent(TextPoint value)
+        /// <summary>
+        /// キャレットを指定した位置に移動させる
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="col"></param>
+        /// <param name="autoExpand">折り畳みを展開するなら真</param>
+        internal void SetCaretPostionWithoutEvent(int row, int col, bool autoExpand = true)
         {
-            if (this._CaretPostion != value)
-                this._CaretPostion = value;
+            //this.LayoutLines.FetchLine(row);
+            if (autoExpand)
+            {
+                int lineHeadIndex = this.LayoutLines.GetIndexFromLineNumber(row);
+                int lineLength = this.LayoutLines.GetLengthFromLineNumber(row);
+                FoldingItem foldingData = this.LayoutLines.FoldingCollection.Get(lineHeadIndex, lineLength);
+                if (foldingData != null)
+                {
+                    if (this.LayoutLines.FoldingCollection.IsParentHidden(foldingData) || !foldingData.IsFirstLine(this.LayoutLines, row))
+                    {
+                        this.LayoutLines.FoldingCollection.Expand(foldingData);
+                    }
+                }
+            }
+            this._CaretPostion = new TextPoint(row, col);
         }
 
         /// <summary>
@@ -723,7 +752,7 @@ namespace FooEditEngine
         }
 
         /// <summary>
-        /// レイアウト行が再構成されたときに発生するイベント
+        /// レイアウト行が構築されたときに発生するイベント
         /// </summary>
         public event EventHandler PerformLayouted;
         /// <summary>
@@ -744,6 +773,22 @@ namespace FooEditEngine
             }
             if (this.PerformLayouted != null)
                 this.PerformLayouted(this, null);
+        }
+
+        /// <summary>
+        /// レイアウト行を構築します
+        /// </summary>
+        /// <param name="startIndex"></param>
+        /// <param name="Length"></param>
+        public void BuildLayout(int startIndex,int Length)
+        {
+            this.LayoutLines.IsFrozneDirtyFlag = true;
+            this.FireUpdate(
+                new DocumentUpdateEventArgs(UpdateType.BuildLayout,
+                startIndex,
+                0,
+                Length));
+            this.LayoutLines.IsFrozneDirtyFlag = false;
         }
 
         /// <summary>
@@ -1311,15 +1356,27 @@ namespace FooEditEngine
         }
 
         #endregion
-
         void buffer_Update(object sender, DocumentUpdateEventArgs e)
         {
             switch (e.type)
             {
                 case UpdateType.RebuildLayout:
-                    this._LayoutLines.Clear();
-                    this._LayoutLines.UpdateAsReplace(0, 0, this.Length);
-                    break;
+                    {
+                        this._LayoutLines.Clear();
+                        int analyzeLength = PreloadLength;
+                        if (analyzeLength > this.Length)
+                            analyzeLength = this.Length;
+                        this._LayoutLines.UpdateAsReplace(0, 0, analyzeLength);
+                        break;
+                    }
+                case UpdateType.BuildLayout:
+                    {
+                        int analyzeLength = PreloadLength;
+                        if (e.startIndex + analyzeLength > this.Length)
+                            analyzeLength = this.Length - e.startIndex;
+                        this._LayoutLines.UpdateAsReplace(e.startIndex, 0, analyzeLength);
+                        break;
+                    }
                 case UpdateType.Replace:
                     if (e.row == null)
                     {

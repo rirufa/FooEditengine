@@ -130,6 +130,8 @@ namespace UnitTest
             ctrl.JumpCaret(0);
             ctrl.JumpCaret(4,false);
             Assert.IsTrue(folding.Expand == false);
+            ctrl.JumpCaret(1, 0);
+            Assert.IsTrue(doc.CaretPostion == new TextPoint(1, 0));
         }
 
         [TestMethod()]

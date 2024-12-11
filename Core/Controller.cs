@@ -363,7 +363,7 @@ namespace FooEditEngine
             if (this.Document.FireUpdateEvent == false)
                 throw new InvalidOperationException("");
 
-            this.View.JumpCaret(row, col,autoExpand);
+            this.Document.SetCaretPostionWithoutEvent(row, col,autoExpand);
 
             this.View.AdjustCaretAndSrc();
 
@@ -377,7 +377,7 @@ namespace FooEditEngine
         /// <param name="isSelected">選択状態にするかどうか</param>
         public void JumpToLineHead(int row,bool isSelected)
         {
-            this.View.JumpCaret(row, 0);
+            this.Document.SetCaretPostionWithoutEvent(row, 0);
             this.View.AdjustCaretAndSrc();
             this.SelectWithMoveCaret(isSelected);
         }
@@ -389,7 +389,7 @@ namespace FooEditEngine
         /// <param name="isSelected">選択状態にするかどうか</param>
         public void JumpToLineEnd(int row, bool isSelected)
         {
-            this.View.JumpCaret(row, this.View.LayoutLines[row].Length - 1);
+            this.Document.SetCaretPostionWithoutEvent(row, this.View.LayoutLines[row].Length - 1);
             this.View.AdjustCaretAndSrc();
             this.SelectWithMoveCaret(isSelected);
         }
@@ -402,7 +402,7 @@ namespace FooEditEngine
         {
             if (this.View.TryScroll(0, 0))
                 return;
-            this.View.JumpCaret(0, 0);
+            this.Document.SetCaretPostionWithoutEvent(0, 0);
             this.View.AdjustCaretAndSrc();
             this.SelectWithMoveCaret(isSelected);
         }
@@ -418,7 +418,7 @@ namespace FooEditEngine
                 srcRow = 0;
             if (this.View.TryScroll(0, srcRow))
                 return;
-            this.View.JumpCaret(this.View.LayoutLines.Count - 1, 0);
+            this.Document.SetCaretPostionWithoutEvent(this.View.LayoutLines.Count - 1, 0);
             this.View.AdjustCaretAndSrc();
             this.SelectWithMoveCaret(isSelected);
         }
@@ -501,7 +501,7 @@ namespace FooEditEngine
             if (withCaret)
             {
                 this.View.Scroll(toX, toRow);
-                this.View.JumpCaret(toRow, 0);
+                this.Document.SetCaretPostionWithoutEvent(toRow, 0);
                 this.View.AdjustCaretAndSrc();
                 this.SelectWithMoveCaret(isSelected);
             }
@@ -527,7 +527,7 @@ namespace FooEditEngine
             TextPoint caret = this.Document.CaretPostion;
             int moved;
             caret = GetNextCaret(caret, realLength, alignWord ? MoveFlow.Word : MoveFlow.Character,out moved);
-            this.View.JumpCaret(caret.row, caret.col, false);
+            this.Document.SetCaretPostionWithoutEvent(caret.row, caret.col, false);
             this.View.AdjustCaretAndSrc(AdjustFlow.Both);
             this.SelectWithMoveCaret(isSelected);
         }
@@ -602,7 +602,7 @@ namespace FooEditEngine
             TextPoint caret = this.Document.CaretPostion;
             int moved;
             caret = this.GetNextCaret(caret, deltarow, MoveFlow.Line,out moved);
-            this.View.JumpCaret(caret.row, caret.col, true);
+            this.Document.SetCaretPostionWithoutEvent(caret.row, caret.col, true);
             this.View.AdjustCaretAndSrc(AdjustFlow.Both);
             this.SelectWithMoveCaret(isSelected);
         }
@@ -807,7 +807,7 @@ namespace FooEditEngine
                 endSelectPostion = this.View.LayoutLines.GetTextPointFromIndex(CaretPostion);
             }
             this.Document.Select(this.Document.AnchorIndex, CaretPostion - this.Document.AnchorIndex);
-            this.View.JumpCaret(endSelectPostion.row, endSelectPostion.col);
+            this.Document.SetCaretPostionWithoutEvent(endSelectPostion.row, endSelectPostion.col);
             this.View.AdjustCaretAndSrc();
         }
 
@@ -896,6 +896,8 @@ namespace FooEditEngine
             if(this.Document.LineBreak == LineBreakMethod.None || move_pargraph == true)
             {
                 int row = current.row + count;
+
+                this.Document.LayoutLines.FetchLine(row);
 
                 if (row < 0)
                     row = 0;

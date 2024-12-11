@@ -273,6 +273,11 @@ namespace Test
             }
             this.fooTextBox.Refresh();
         }
+
+        private void Jamp_Click(object sender, RoutedEventArgs e)
+        {
+            this.fooTextBox.JumpCaret(int.Parse(this.JumpRow.Text), 0);
+        }
     }
     public class FlowDirectionConveter : System.Windows.Data.IValueConverter
     {

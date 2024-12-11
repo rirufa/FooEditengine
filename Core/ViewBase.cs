@@ -309,7 +309,10 @@ namespace FooEditEngine
         {
             if (row < 0)
                 return true;
-            if (row > this.LayoutLines.Count - 1)
+            LineToIndexTableData lineData;
+            this.LayoutLines.FetchLine(row);
+            this.LayoutLines.TryGetRaw(row, out lineData);
+            if (lineData == null)
                 return true;
             this.Document.Src = new SrcPoint(x, row, rel_y);
             this.SrcChanged(this,null);
@@ -356,9 +359,16 @@ namespace FooEditEngine
                 t = GetNearstRowAndOffsetY(this.Document.Src.Row, offset_y);
                 t.OffsetY -= this.Document.Src.OffsetY;
             }
-            bool isSrcUpdate = t.Row == this.Document.Src.Row;
+
+            LineToIndexTableData lineData;
+            this.LayoutLines.TryGetRaw(t.Row, out lineData);
+            if (lineData == null)
+                return true;
+
+            bool isSrcNotUpdate = t.Row == this.Document.Src.Row;
+
             this.Document.Src = new SrcPoint(x, t.Row, -t.OffsetY);
-            return isSrcUpdate;
+            return isSrcNotUpdate;
         }
 
         /// <summary>

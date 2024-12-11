@@ -6,8 +6,9 @@
     <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
     <AssemblyName>FooEditEngine.WinUI</AssemblyName>
-    <Version>1.0.16$(VersionPrefix)</Version>
-    <IncludeSymbols>true</IncludeSymbols>
+　 <VersionPrefix>-alpha</VersionPrefix>
+	 <Version>1.1.2$(VersionPrefix)</Version>
+	  <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

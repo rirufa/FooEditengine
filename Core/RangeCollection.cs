@@ -331,6 +331,9 @@ namespace FooEditEngine
             this.stepLength += deltaLength;
         }
 
+        /// <summary>
+        /// 今までの変更をすべて反映させる
+        /// </summary>
         public void CommiteChange()
         {
             for (int i = this.stepRow + 1; i < this.collection.Count; i++)
@@ -340,6 +343,11 @@ namespace FooEditEngine
             this.stepLength = 0;
         }
 
+        /// <summary>
+        /// 当該行の先頭インデックスを取得する
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
         public int GetLineHeadIndex(int row)
         {
             if (this.collection.Count == 0)
