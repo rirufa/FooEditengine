@@ -11,6 +11,7 @@ You should have received a copy of the GNU General Public License along with thi
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace FooEditEngine
 {
@@ -268,8 +269,10 @@ namespace FooEditEngine
 
                 this.render.BeginClipRect(this.render.TextArea);
 
+                var drawLine = 0;
                 for (int i = this.Src.Row; i < this.LayoutLines.Count; i++)
                 {
+                    drawLine = i;
                     int lineIndex = this.LayoutLines.GetIndexFromLineNumber(i);
                     int lineLength = this.LayoutLines.GetLengthFromLineNumber(i);
                     ITextLayout layout = this.LayoutLines.GetLayout(i);
@@ -291,6 +294,20 @@ namespace FooEditEngine
                     this.render.DrawOneLine(this.Document, this.LayoutLines, i, pos.X, pos.Y);
 
                     pos.Y += layout.Height;
+                }
+
+                if (drawLine == this.LayoutLines.Count - 1)
+                {
+                    var lineHeadIndex = this.LayoutLines.GetLineHeadIndex(drawLine);
+                    var lineLength = this.LayoutLines.GetLengthFromLineNumber(drawLine);
+                    if (lineHeadIndex + lineLength >= this.Document.Length)
+                    {
+                        this.render.DrawString("[EOF]", pos.X, pos.Y, StringAlignment.Left, this.PageBound.Size,StringColorType.LineNumber);
+                    }
+                    else
+                    {
+                        this.render.DrawString("[...]", pos.X, pos.Y, StringAlignment.Left, this.PageBound.Size, StringColorType.LineNumber);
+                    }
                 }
 
                 this.render.EndClipRect();
