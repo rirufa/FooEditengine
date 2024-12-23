@@ -1044,27 +1044,27 @@ namespace FooEditEngine.WinUI
 
         void gestureRecongnizer_ManipulationUpdated(GestureRecognizer sender, ManipulationUpdatedEventArgs e)
         {
-            if (e.Delta.Scale < 1)
-            {
-                double newSize = this.Render.FontSize - 1;
-                if (newSize < 1)
-                    newSize = 1;
-                this.Render.FontSize = newSize;
-                this.Refresh();
-                SetValue(MagnificationPowerPropertyKey, this.Render.FontSize / this.FontSize);
-                return;
-            }
+            bool scaleResult = this._Controller.Scale(e.Delta.Scale, (scale) => {
+                if (e.Delta.Scale < 1) {
+                    double newSize = this.Render.FontSize - 1;
+                    if (newSize < 1)
+                        newSize = 1;
+                    this.Render.FontSize = newSize;
+                    this.Refresh();
+                    SetValue(MagnificationPowerPropertyKey, this.Render.FontSize / this.FontSize);
+                }
+                if (e.Delta.Scale > 1) {
+                    double newSize = this.Render.FontSize + 1;
+                    if (newSize > 72)
+                        newSize = 72;
+                    this.Render.FontSize = newSize;
+                    this.Refresh();
+                    SetValue(MagnificationPowerPropertyKey, this.Render.FontSize / this.FontSize);
+                }
+            });
 
-            if (e.Delta.Scale > 1)
-            {
-                double newSize = this.Render.FontSize + 1;
-                if (newSize > 72)
-                    newSize = 72;
-                this.Render.FontSize = newSize;
-                this.Refresh();
-                SetValue(MagnificationPowerPropertyKey, this.Render.FontSize / this.FontSize);
+            if (scaleResult)
                 return;
-            }
 
             if (this._Controller.MoveCaretAndGripper(e.Position, this.hittedGripper))
             {

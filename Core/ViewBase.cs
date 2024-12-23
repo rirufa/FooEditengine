@@ -243,6 +243,16 @@ namespace FooEditEngine
         }
 
         /// <summary>
+        /// 拡大の閾値
+        /// </summary>
+        public double ScaleNoti { get; set; }
+
+        /// <summary>
+        /// スクロールの閾値(単位：ピクセル)
+        /// </summary>
+        public double ScrollNoti { get; set; }
+
+        /// <summary>
         /// 余白を表す
         /// </summary>
         public Padding Padding
@@ -473,8 +483,12 @@ namespace FooEditEngine
         {
         }
 
+        const int defaultScaleNoti = 6;
+
         protected virtual void OnRenderChanged(EventArgs e)
         {
+            this.ScrollNoti = this.render.emSize.Height * this.render.LineEmHeight;
+            this.ScaleNoti = defaultScaleNoti;
             CalculateClipRect();
             CalculateLineBreak();
             CalculateLineCountOnScreen();

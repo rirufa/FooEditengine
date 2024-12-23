@@ -14,6 +14,7 @@ using System.Text;
 using System.Linq;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Runtime.CompilerServices;
 #if WINFORM
 using System.Drawing;
 #endif
@@ -442,9 +443,9 @@ namespace FooEditEngine
                 return;
             }
             
-            if(totalDelta > this.View.render.LineEmHeight)
+            if(totalDelta > this.View.ScrollNoti)
             {
-                int numRow = (int)(totalDelta / this.View.render.LineEmHeight) ;
+                int numRow = (int)(totalDelta / this.View.render.emSize.Height * this.View.render.LineEmHeight) ;
                 this.Scroll(dir, numRow, isSelected, withCaret);
                 totalDelta = 0;
             }
@@ -785,6 +786,40 @@ namespace FooEditEngine
                 this.Document.AnchorIndex = CaretPostion;
                 this.Document.Select(CaretPostion, 0);
             }
+        }
+
+        //拡大時の変化量の累積。絶対値で格納される。
+        double totalScaleDelta = 0;
+
+        /// <summary>
+        /// 拡大する
+        /// </summary>
+        /// <param name="scale"></param>
+        public bool Scale(double Scale,Action<double> scaleProcessFunc)
+        {
+            if (Scale < 1)
+            {
+                if (totalScaleDelta > this.View.ScaleNoti)
+                {
+                    scaleProcessFunc(Scale);
+                    totalScaleDelta = 0;
+                    return true;
+                }
+                totalScaleDelta += Math.Abs(Scale);
+            }
+
+            if (Scale > 1)
+            {
+                System.Diagnostics.Debug.WriteLine("scale:" + totalScaleDelta);
+                if (totalScaleDelta > this.View.ScaleNoti)
+                {
+                    scaleProcessFunc(Scale);
+                    totalScaleDelta = 0;
+                    return true;
+                }
+                totalScaleDelta += Math.Abs(Scale);
+            }
+            return false;
         }
 
         /// <summary>
