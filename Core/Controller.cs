@@ -817,6 +817,12 @@ namespace FooEditEngine
                 }
                 totalScaleDelta += Math.Abs(Scale);
             }
+
+            if(Scale == 1)
+            {
+                totalScaleDelta = 0;
+            }
+
             return false;
         }
 
