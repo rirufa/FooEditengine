@@ -664,7 +664,7 @@ namespace FooEditEngine
         /// <returns>テキストポイントで指定された行の高さを返します</returns>
         public double GetLineHeight(TextPoint tp)
         {
-            return this.render.emSize.Height;
+            return this.render.emSize.Height * this.Render.LineEmHeight;
         }
 
         internal ITextLayout GetLayout(int row)

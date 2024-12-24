@@ -577,7 +577,8 @@ namespace FooEditEngine.WinUI
             if (autocomplete != null && autocomplete.ProcessKeyDown(this, e, isControlPressed, isShiftPressed))
                 return;
 
-            double alignedPage = (int)(this.Render.TextArea.Height / this.Render.emSize.Height) * this.Render.emSize.Height;
+            double lineHeight = this.Render.emSize.Height * this.Render.LineEmHeight;
+            double alignedPage = (int)(this.Render.TextArea.Height / lineHeight) * lineHeight;
             switch (e.Key)
             {
                 case VirtualKey.Up:

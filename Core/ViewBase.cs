@@ -252,6 +252,8 @@ namespace FooEditEngine
         /// </summary>
         public double ScrollNoti { get; set; }
 
+        public double LineHeight { get; private set; }
+
         /// <summary>
         /// 余白を表す
         /// </summary>

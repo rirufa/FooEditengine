@@ -442,16 +442,14 @@ namespace FooEditEngine
                 this.Scroll(dir ,(int)delta, isSelected, withCaret);
                 return;
             }
-            
-            if(totalDelta > this.View.ScrollNoti)
+
+            totalDelta += delta;
+            if (totalDelta > this.View.ScrollNoti)
             {
-                int numRow = (int)(totalDelta / this.View.render.emSize.Height * this.View.render.LineEmHeight) ;
+                double lineHeight = this.View.render.emSize.Height * this.View.render.LineEmHeight;
+                int numRow = (int)(totalDelta / lineHeight) ;
                 this.Scroll(dir, numRow, isSelected, withCaret);
                 totalDelta = 0;
-            }
-            else
-            {
-                totalDelta += delta;
             }
         }
 
