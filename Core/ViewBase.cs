@@ -485,7 +485,7 @@ namespace FooEditEngine
         {
         }
 
-        const int defaultScaleNoti = 6;
+        const int defaultScaleNoti = 7;
 
         protected virtual void OnRenderChanged(EventArgs e)
         {

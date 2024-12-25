@@ -792,7 +792,15 @@ namespace FooEditEngine.WinUI
                 Windows.System.VirtualKeyModifiers.Shift;
             bool ctrl = (e.KeyModifiers & Windows.System.VirtualKeyModifiers.Control) ==
                 Windows.System.VirtualKeyModifiers.Control;
-            this.gestureRecongnizer.ProcessMouseWheelEvent(e.GetCurrentPoint(this), shift, ctrl);
+            try
+            {
+                this.gestureRecongnizer.ProcessMouseWheelEvent(e.GetCurrentPoint(this), shift, ctrl);
+            }
+            catch (System.Runtime.InteropServices.COMException ex)
+            {
+                //たまにこの例外が発生するが、回避できない
+                System.Diagnostics.Debug.WriteLine("expection:" + ex);
+            }
             e.Handled = true;
         }
 
