@@ -15,9 +15,46 @@ using System.Globalization;
 using System.Text;
 using System.Reflection;
 using System.Collections;
+using Windows.Foundation.Diagnostics;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace FooEditEngine
 {
+    enum DebugLogLevel
+    {
+        Infomation, Important,
+    }
+    class DebugLog
+    {
+        public static void WriteLine(string message)
+        {
+            WriteLine(DebugLogLevel.Infomation, message);
+        }
+
+        public static void WriteLine(string message,params object[] args)
+        {
+            WriteLine(DebugLogLevel.Infomation, message, args);
+        }
+
+        public static void WriteLine(DebugLogLevel level,string message, params object[] args)
+        {
+#if DEBUG_DETAIL
+            if(level == DebugLogLevel.Infomation) {
+                if(args.Length > 0)
+                    System.Diagnostics.Debug.WriteLine(message,args);
+                else
+                    System.Diagnostics.Debug.WriteLine(message);
+            }
+#elif DEBUG
+            if (level == DebugLogLevel.Important) {
+                if(args.Length > 0)
+                    System.Diagnostics.Debug.WriteLine(message,args);
+                else
+                    System.Diagnostics.Debug.WriteLine(message);
+            }
+#endif
+        }
+    }
     class Util
     {
 #if METRO || WINDOWS_UWP

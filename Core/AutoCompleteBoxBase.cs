@@ -281,7 +281,7 @@ namespace FooEditEngine
             ShowingCompleteBox(this, ev);
 
             bool hasCompleteItem = ev.foundIndex != -1 && ev.inputedWord != null && ev.inputedWord != string.Empty && ev.inputedWord.Length >= InputLength;
-            System.Diagnostics.Debug.WriteLine("hasCompleteItem:{0}", hasCompleteItem);
+            DebugLog.WriteLine(String.Format("hasCompleteItem:{0}", hasCompleteItem));
             if (force || hasCompleteItem)
             {
                 RequestShowCompleteBox(ev);

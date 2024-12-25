@@ -808,7 +808,6 @@ namespace FooEditEngine
 
             if (Scale > 1)
             {
-                System.Diagnostics.Debug.WriteLine("scale:" + totalScaleDelta);
                 if (totalScaleDelta > this.View.ScaleNoti)
                 {
                     scaleProcessFunc(Scale);

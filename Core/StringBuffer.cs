@@ -135,7 +135,7 @@ namespace FooEditEngine
                 if (tokenSource != null)
                     tokenSource.Token.ThrowIfCancellationRequested();
 #if TEST_ASYNC
-                System.Diagnostics.Debug.WriteLine("waiting now");
+                DebugLog.WriteLine("waiting now");
                 await Task.Delay(100).ConfigureAwait(false);
 #endif
                 Array.Clear(str, 0, str.Length);

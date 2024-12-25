@@ -115,7 +115,7 @@ namespace FooEditEngine
 #if DEBUG
                         if (this.stepRow < 0 || this.stepRow > this.collection.Count + newCount)
                         {
-                            System.Diagnostics.Debug.WriteLine("step row < 0 or step row >= lines.count");
+                            DebugLog.WriteLine(DebugLogLevel.Important,"step row < 0 or step row >= lines.count");
                             System.Diagnostics.Debugger.Break();
                         }
 #endif
@@ -293,7 +293,7 @@ namespace FooEditEngine
             this.collection.Clear();
             this.stepRow = STEP_ROW_IS_NONE;
             this.stepLength = 0;
-            System.Diagnostics.Debug.WriteLine("Clear");
+            DebugLog.WriteLine("Clear");
         }
 
         public void UpdateStartIndex(int deltaLength, int startRow)
