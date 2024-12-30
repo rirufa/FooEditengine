@@ -48,6 +48,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Test\CharFoldingMethod.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Test\XmlHilighter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextPoint.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TextSearch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextServiceFramework\TextStoreHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UndoCommands.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UndoManager.cs" />

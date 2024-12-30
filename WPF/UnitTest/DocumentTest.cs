@@ -335,38 +335,6 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void IndexOfText()
-        {
-            StringBuffer buf = new StringBuffer();
-            string str = "this is a pen";
-            buf.Replace(0, 0, str, str.Length);
-            
-            int index = buf.IndexOf("is", 0);
-            Assert.IsTrue(index == 2);
-            
-            index = buf.IndexOf("is", 4);
-            Assert.IsTrue(index == 5);
-            
-            index = buf.IndexOf("xy", 0);
-            Assert.IsTrue(index == -1);
-
-            index = buf.IndexOf("Is", 0,true);
-            Assert.IsTrue(index == 2);
-
-            str = "xABC";
-            buf.Clear();
-            buf.Replace(0, 0, str, str.Length);
-            index = buf.IndexOf("ABC", 0);
-            Assert.IsTrue(index == 1);
-
-            index = buf.IndexOf("abc", 0,true);
-            Assert.IsTrue(index == 1);
-
-            index = buf.IndexOf("abc", 0);
-            Assert.IsTrue(index == -1);
-        }
-
-        [TestMethod]
         public void ReplaceNonRegexAllTest()
         {
             DummyRender render = new DummyRender();

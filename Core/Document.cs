@@ -692,6 +692,14 @@ namespace FooEditEngine
             }
         }
 
+        public int Count
+        {
+            get
+            {
+                return this.buffer.Length;
+            }
+        }
+
         /// <summary>
         /// 変更のたびにUpdateイベントを発生させるかどうか
         /// </summary>
@@ -1055,7 +1063,10 @@ namespace FooEditEngine
         /// <returns>Stringオブジェクト</returns>
         public string ToString(int index, int length)
         {
-            return this.buffer.ToString(index, length);
+            using(this.buffer.GetReaderLock())
+            {
+                return this.buffer.ToString(index, length);
+            }
         }
 
         /// <summary>
@@ -1168,6 +1179,7 @@ namespace FooEditEngine
         {
             this.buffer.Clear();
             this.Dirty = false;
+            this.buffer.OnDocumentUpdate(new DocumentUpdateEventArgs(UpdateType.Clear, 0, this.buffer.Count, 0));
         }
 
         /// <summary>
@@ -1194,7 +1206,29 @@ namespace FooEditEngine
                 this.Clear();
                 if (file_size > 0)
                     this.buffer.Allocate(file_size);
-                await this.buffer.LoadAsync(fs, tokenSource);
+                char[] str = new char[1024 * 1024];
+                int readCount;
+                do
+                {
+                    readCount = await fs.ReadAsync(str, 0, str.Length).ConfigureAwait(false);
+
+                    //内部形式に変換する
+                    var internal_str = from s in str where s != '\r' && s != '\0' select s;
+
+                    using(await this.buffer.GetWriterLockAsync())
+                    {
+                        //str.lengthは事前に確保しておくために使用するので影響はない
+                        this.buffer.AddRange(internal_str);
+                    }
+
+                    if (tokenSource != null)
+                        tokenSource.Token.ThrowIfCancellationRequested();
+#if TEST_ASYNC
+                DebugLog.WriteLine("waiting now");
+                await Task.Delay(100).ConfigureAwait(false);
+#endif
+                    Array.Clear(str, 0, str.Length);
+                } while (readCount > 0);
             }
             finally
             {
@@ -1213,7 +1247,27 @@ namespace FooEditEngine
         /// <remarks>非同期操作中はこのメソッドを実行することはできません</remarks>
         public async Task SaveAsync(TextWriter fs, CancellationTokenSource tokenSource = null)
         {
-            await this.buffer.SaveAsync(fs, tokenSource);
+            using (await this.buffer.GetReaderLockAsync())
+            {
+                StringBuilder line = new StringBuilder();
+                for (int i = 0; i < this.Length; i++)
+                {
+                    char c = this[i];
+                    line.Append(c);
+                    if (c == Document.NewLine || i == this.Length - 1)
+                    {
+                        string str = line.ToString();
+                        str = str.Replace(Document.NewLine.ToString(), fs.NewLine);
+                        await fs.WriteAsync(str).ConfigureAwait(false);
+                        line.Clear();
+                        if (tokenSource != null)
+                            tokenSource.Token.ThrowIfCancellationRequested();
+#if TEST_ASYNC
+                        System.Threading.Thread.Sleep(10);
+#endif
+                    }
+                }
+            }
         }
 
         /// <summary>
