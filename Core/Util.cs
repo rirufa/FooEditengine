@@ -15,8 +15,10 @@ using System.Globalization;
 using System.Text;
 using System.Reflection;
 using System.Collections;
+#if WINUI
 using Windows.Foundation.Diagnostics;
 using Microsoft.UI.Xaml.Media.Imaging;
+#endif
 
 namespace FooEditEngine
 {
