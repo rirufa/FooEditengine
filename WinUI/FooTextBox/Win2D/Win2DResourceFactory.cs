@@ -127,7 +127,7 @@ namespace FooEditEngine.WinUI
             return layout;
         }
 
-        public CanvasCachedGeometry CreateSymbol(ShowSymbol sym, CanvasTextFormat format)
+        public CanvasCachedGeometry CreateSymbol(ShowSymbol sym, CanvasTextFormat format,double lineHeight)
         {
             CanvasCachedGeometry cached_geo;
 
@@ -148,7 +148,7 @@ namespace FooEditEngine.WinUI
                         layout = new CanvasTextLayout(this.Device, "　", format, float.MaxValue, float.MaxValue);
                         rect = layout.GetCharacterRegions(0, 1)[0].LayoutBounds;
                         rect.Width = Math.Max(1, rect.Width - margin * 2);
-                        rect.Height = Math.Max(1, rect.Height - margin * 2);
+                        rect.Height = Math.Max(1, lineHeight - margin * 2);
                         rect.X += margin;
                         rect.Y += margin;
                         geo = CanvasGeometry.CreateRectangle(this.Device, rect);
@@ -156,14 +156,12 @@ namespace FooEditEngine.WinUI
                     case ShowSymbol.HalfSpace:
                         layout = new CanvasTextLayout(this.Device, " ", format, float.MaxValue, float.MaxValue);
                         rect = layout.GetCharacterRegions(0, 1)[0].LayoutBounds;
-                        geo = CanvasGeometry.CreateCircle(_Device,(float)(rect.Width / 2),(float)(rect.Height / 2), half_space_circle_radious);
+                        geo = CanvasGeometry.CreateCircle(_Device,(float)(rect.Width / 2),(float)(lineHeight / 2), half_space_circle_radious);
                         break;
                     case ShowSymbol.Tab:
-                        layout = new CanvasTextLayout(this.Device, "0", format, float.MaxValue, float.MaxValue);
-                        rect = layout.GetCharacterRegions(0, 1)[0].LayoutBounds;
                         path = new CanvasPathBuilder(this.Device);
                         path.BeginFigure(0, 0);
-                        path.AddLine((float)0, (float)rect.Height);
+                        path.AddLine((float)0, (float)lineHeight);
                         path.EndFigure(CanvasFigureLoop.Open);
                         geo = CanvasGeometry.CreatePath(path);
                         stroke = this.CreateStrokeStyle(HilightType.Dash);

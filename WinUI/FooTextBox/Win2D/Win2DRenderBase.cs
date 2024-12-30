@@ -121,50 +121,114 @@ namespace FooEditEngine.WinUI
             set
             {
                 this._Forground = value;
+                this._factory.ClearCahe();
                 this.OnChangedRenderResource(this, new ChangedRenderRsourceEventArgs(ResourceType.Brush));
             }
         }
 
+        Windows.UI.Color _HilightForeground;
         public Windows.UI.Color HilightForeground
         {
-            get;
-            set;
+            get
+            {
+                return this._HilightForeground;
+            }
+            set
+            {
+                this._HilightForeground = value;
+                this._factory.ClearCahe();
+                this.OnChangedRenderResource(this, new ChangedRenderRsourceEventArgs(ResourceType.Brush));
+            }
         }
 
+        Windows.UI.Color _Background;
         public Windows.UI.Color Background
         {
-            get;
-            set;
+            get
+            {
+                return this._Background;
+            }
+            set
+            {
+                this._Background = value;
+                this._factory.ClearCahe();
+                this.OnChangedRenderResource(this, new ChangedRenderRsourceEventArgs(ResourceType.Brush));
+            }
         }
 
+        Windows.UI.Color _InsertCaret;
         public Windows.UI.Color InsertCaret
         {
-            get;
-            set;
+            get
+            {
+                return this._InsertCaret;
+            }
+            set
+            {
+                this._InsertCaret = value;
+                this._factory.ClearCahe();
+                this.OnChangedRenderResource(this, new ChangedRenderRsourceEventArgs(ResourceType.Brush));
+            }
         }
 
+        Windows.UI.Color _OverwriteCaret;
         public Windows.UI.Color OverwriteCaret
         {
-            get;
-            set;
+            get
+            {
+                return this._OverwriteCaret;
+            }
+            set
+            {
+                this._OverwriteCaret = value;
+                this._factory.ClearCahe();
+                this.OnChangedRenderResource(this, new ChangedRenderRsourceEventArgs(ResourceType.Brush));
+            }
         }
 
+        Windows.UI.Color _LineMarker;
         public Windows.UI.Color LineMarker
         {
-            get;
-            set;
+            get
+            {
+                return this._LineMarker;
+            }
+            set
+            {
+                this._LineMarker = value;
+                this._factory.ClearCahe();
+                this.OnChangedRenderResource(this, new ChangedRenderRsourceEventArgs(ResourceType.Brush));
+            }
         }
 
+        Windows.UI.Color _UpdateArea;
         public Windows.UI.Color UpdateArea
         {
-            get;
-            set;
+            get
+            {
+                return this._UpdateArea;
+            }
+            set
+            {
+                this._UpdateArea = value;
+                this._factory.ClearCahe();
+                this.OnChangedRenderResource(this, new ChangedRenderRsourceEventArgs(ResourceType.Brush));
+            }
         }
 
+        Windows.UI.Color _LineNumber;
         public Windows.UI.Color LineNumber
         {
-            get;
-            set;
+            get
+            {
+                return this._LineNumber;
+            }
+            set
+            {
+                this._LineNumber = value;
+                this._factory.ClearCahe();
+                this.OnChangedRenderResource(this, new ChangedRenderRsourceEventArgs(ResourceType.Brush));
+            }
         }
 
         Windows.UI.Color _ControlChar;
@@ -177,6 +241,7 @@ namespace FooEditEngine.WinUI
             set
             {
                 this._ControlChar = value;
+                this._factory.ClearCahe();
                 //隠し文字の色も定義する
                 this.OnChangedRenderResource(this, new ChangedRenderRsourceEventArgs(ResourceType.Brush));
             }
@@ -192,14 +257,24 @@ namespace FooEditEngine.WinUI
             set
             {
                 this._URL = value;
+                this._factory.ClearCahe();
                 this.OnChangedRenderResource(this, new ChangedRenderRsourceEventArgs(ResourceType.Brush));
             }
         }
 
+        Windows.UI.Color _Hilight;
         public Windows.UI.Color Hilight
         {
-            get;
-            set;
+            get
+            {
+                return this._Hilight;
+            }
+            set
+            {
+                this._Hilight = value;
+                this._factory.ClearCahe();
+                this.OnChangedRenderResource(this, new ChangedRenderRsourceEventArgs(ResourceType.Brush));
+            }
         }
 
         Windows.UI.Color _Comment;
@@ -212,6 +287,7 @@ namespace FooEditEngine.WinUI
             set
             {
                 this._Comment = value;
+                this._factory.ClearCahe();
                 this.OnChangedRenderResource(this, new ChangedRenderRsourceEventArgs(ResourceType.Brush));
             }
         }
@@ -226,6 +302,7 @@ namespace FooEditEngine.WinUI
             set
             {
                 this._Literal = value;
+                this._factory.ClearCahe();
                 this.OnChangedRenderResource(this, new ChangedRenderRsourceEventArgs(ResourceType.Brush));
             }
         }
@@ -240,6 +317,7 @@ namespace FooEditEngine.WinUI
             set
             {
                 this._Keyword1 = value;
+                this._factory.ClearCahe();
                 this.OnChangedRenderResource(this, new ChangedRenderRsourceEventArgs(ResourceType.Brush));
             }
         }
@@ -254,6 +332,7 @@ namespace FooEditEngine.WinUI
             set
             {
                 this._Keyword2 = value;
+                this._factory.ClearCahe();
                 this.OnChangedRenderResource(this, new ChangedRenderRsourceEventArgs(ResourceType.Brush));
             }
         }
@@ -370,6 +449,11 @@ namespace FooEditEngine.WinUI
             _format.WordWrapping = CanvasWordWrapping.NoWrap;
             _format.Direction = GetDWRightDirection(this.RightToLeft);
             this.CaclulateTextMetrics();
+        }
+
+        public void ClearCache()
+        {
+            this._factory.ClearCahe();
         }
 
         void CaclulateTextMetrics()
@@ -563,23 +647,24 @@ namespace FooEditEngine.WinUI
             {
                 string str = lti[row];
                 CanvasCachedGeometry geo = null;
+                double lineHeight = this.emSize.Height * this.LineEmHeight;
                 for(int i = 0; i < lineLength; i++)
                 {
                     Point pos = new Point(0,0);
                     if(this.ShowTab && str[i] == '\t')
                     {
                         pos = layout.GetPostionFromIndex(i);
-                        geo = this._factory.CreateSymbol(ShowSymbol.Tab, this._format);
+                        geo = this._factory.CreateSymbol(ShowSymbol.Tab, this._format, lineHeight);
                     }
                     else if(this.ShowFullSpace && str[i] == '　')
                     {
                         pos = layout.GetPostionFromIndex(i);
-                        geo = this._factory.CreateSymbol(ShowSymbol.FullSpace, this._format);
+                        geo = this._factory.CreateSymbol(ShowSymbol.FullSpace, this._format, lineHeight);
                     }
                     else if (this.ShowHalfSpace && str[i] == ' ')
                     {
                         pos = layout.GetPostionFromIndex(i);
-                        geo = this._factory.CreateSymbol(ShowSymbol.HalfSpace, this._format);
+                        geo = this._factory.CreateSymbol(ShowSymbol.HalfSpace, this._format, lineHeight);
                     }
                     if(geo != null)
                     {
