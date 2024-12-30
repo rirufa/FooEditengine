@@ -7,7 +7,7 @@
     <UseWinUI>true</UseWinUI>
     <AssemblyName>FooEditEngine.WinUI</AssemblyName>
 　 <VersionPrefix>-alpha</VersionPrefix>
-	 <Version>1.1.5$(VersionPrefix)</Version>
+	 <Version>1.1.6$(VersionPrefix)</Version>
 	  <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
