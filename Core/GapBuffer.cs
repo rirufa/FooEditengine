@@ -7,6 +7,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+* Note
+Copy from https://www.codeproject.com/articles/20910/generic-gap-buffer
+
  */
 #region Using Directives
 
@@ -34,7 +38,7 @@ namespace Slusser.Collections.Generic
 	{
 		#region Fields
 
-		private const int MIN_CAPACITY = 128;
+		private const int MIN_CAPACITY = 4096;
 		
 		private T[] _buffer;
 		private int _gapStart;
@@ -709,9 +713,9 @@ namespace Slusser.Collections.Generic
 			// Is the available space in the gap?
 			if (required > (this._gapEnd - this._gapStart))
 			{
-				// Calculate a new size (double the size necessary)
-				int newCapacity = Count + required + MIN_CAPACITY;
-				if (newCapacity < MIN_CAPACITY)
+                // Calculate a new size (double the size necessary)
+                int newCapacity = (Count + required) * 2;
+                if (newCapacity < MIN_CAPACITY)
 					newCapacity = MIN_CAPACITY;
 
 				Capacity = newCapacity;
