@@ -1203,32 +1203,8 @@ namespace FooEditEngine
 
             try
             {
-                this.Clear();
-                if (file_size > 0)
-                    this.buffer.Allocate(file_size);
-                char[] str = new char[1024 * 1024];
-                int readCount;
-                do
-                {
-                    readCount = await fs.ReadAsync(str, 0, str.Length).ConfigureAwait(false);
-
-                    //内部形式に変換する
-                    var internal_str = from s in str where s != '\r' && s != '\0' select s;
-
-                    using(await this.buffer.GetWriterLockAsync())
-                    {
-                        //str.lengthは事前に確保しておくために使用するので影響はない
-                        this.buffer.AddRange(internal_str);
-                    }
-
-                    if (tokenSource != null)
-                        tokenSource.Token.ThrowIfCancellationRequested();
-#if TEST_ASYNC
-                DebugLog.WriteLine("waiting now");
-                await Task.Delay(100).ConfigureAwait(false);
-#endif
-                    Array.Clear(str, 0, str.Length);
-                } while (readCount > 0);
+                //UIスレッドのやつを呼ぶ可能性がある
+                await LoadAsyncCore(fs, tokenSource);
             }
             finally
             {
@@ -1236,6 +1212,36 @@ namespace FooEditEngine
                 if (this.LoadProgress != null)
                     this.LoadProgress(this, new ProgressEventArgs(ProgressState.Complete));
             }
+        }
+
+        async Task LoadAsyncCore(TextReader fs, CancellationTokenSource tokenSource = null, int file_size = -1)
+        {
+            this.Clear();
+            if (file_size > 0)
+                this.buffer.Allocate(file_size);
+            char[] str = new char[1024 * 1024];
+            int readCount;
+            do
+            {
+                readCount = await fs.ReadAsync(str, 0, str.Length).ConfigureAwait(false);
+
+                //内部形式に変換する
+                var internal_str = from s in str where s != '\r' && s != '\0' select s;
+
+                using (await this.buffer.GetWriterLockAsync())
+                {
+                    //str.lengthは事前に確保しておくために使用するので影響はない
+                    this.buffer.AddRange(internal_str);
+                }
+
+                if (tokenSource != null)
+                    tokenSource.Token.ThrowIfCancellationRequested();
+#if TEST_ASYNC
+                DebugLog.WriteLine("waiting now");
+                await Task.Delay(100).ConfigureAwait(false);
+#endif
+                Array.Clear(str, 0, str.Length);
+            } while (readCount > 0);
         }
 
         /// <summary>
@@ -1246,6 +1252,11 @@ namespace FooEditEngine
         /// <returns>Taskオブジェクト</returns>
         /// <remarks>非同期操作中はこのメソッドを実行することはできません</remarks>
         public async Task SaveAsync(TextWriter fs, CancellationTokenSource tokenSource = null)
+        {
+            await this.SaveAsyncCore(fs, tokenSource);
+        }
+
+        async Task SaveAsyncCore(TextWriter fs, CancellationTokenSource tokenSource = null)
         {
             using (await this.buffer.GetReaderLockAsync())
             {

@@ -6,7 +6,7 @@
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
     <AssemblyName>FooEditEngine.WinUI</AssemblyName>
-　 <VersionPrefix>-alpha</VersionPrefix><Version>1.1.7$(VersionPrefix)</Version><IncludeSymbols>true</IncludeSymbols><SymbolPackageFormat>snupkg</SymbolPackageFormat><SupportedOSPlatformVersion>10.0.22621.0</SupportedOSPlatformVersion></PropertyGroup>
+　 <VersionPrefix>-alpha</VersionPrefix><Version>1.1.8$(VersionPrefix)</Version><IncludeSymbols>true</IncludeSymbols><SymbolPackageFormat>snupkg</SymbolPackageFormat><SupportedOSPlatformVersion>10.0.22621.0</SupportedOSPlatformVersion></PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>WINUI;ENABLE_AUTMATION</DefineConstants>
   </PropertyGroup>
