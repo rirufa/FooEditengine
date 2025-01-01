@@ -210,7 +210,9 @@ namespace FooEditEngine
                     throw new InvalidOperationException("");
                 if (value == null)
                     return;
-                this.RepleaceSelectionArea(this.View.Selections, value.Replace(Environment.NewLine,Document.NewLine.ToString()));
+                //\r,\n,\r\nのパターンがあるので、最初に\r\nをマッチさせる
+                var pasteText = Regex.Replace(value, "(\r\n|\r|\n)", Document.NewLine.ToString());
+                this.RepleaceSelectionArea(this.View.Selections, pasteText);
             }
         }
 
